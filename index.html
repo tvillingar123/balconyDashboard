@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <title>Balkongdashboard</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      margin: 0; padding: 0;
+      background: #f3f3f3;
+      color: #333;
+    }
+    header {
+      background: #3f51b5;
+      color: white;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    h1 { margin: 0; }
+    main {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+    section { margin-top: 2rem; }
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .chart {
+      flex: 1 1 calc(33.333% - 1rem);
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      padding: 1rem;
+      position: relative;
+    }
+    .chart.fullwidth {
+      flex: 1 1 100%;
+    }
+    svg {
+      width: 100%;
+      height: 250px;
+    }
+    h2 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    .legend {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 12px;
+      background: rgba(255,255,255,0.9);
+      padding: 6px 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .legend div {
+      margin-bottom: 4px;
+    }
+    .legend span {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px 10px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    th {
+      background: #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+  <header><h1>🌿 Balkongdashboard</h1></header>
+  <main>
+    <section class="grid">
+      <div class="chart" id="temperatur">
+        <h2>Temperatur (°C)</h2>
+        <div class="legend" id="legend-temperatur"></div>
+      </div>
+      <div class="chart" id="luftfuktighet">
+        <h2>Luftfuktighet (%)</h2>
+        <div class="legend" id="legend-luftfuktighet"></div>
+      </div>
+      <div class="chart" id="lufttryck">
+        <h2>Lufttryck (hPa)</h2>
+        <div class="legend" id="legend-lufttryck"></div>
+      </div>
+      <div class="chart fullwidth" id="jordfukt">
+        <h2>Jordfuktighet – Låda 1, 2, 3</h2>
+        <div class="legend" id="legend-jordfukt"></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>📊 Korrelation med Jordfuktighet</h2>
+      <div id="korrelation"></div>
+    </section>
+
+    <section>
+      <h2>💧 Torkintervallanalys</h2>
+      <div id="torkanalys"></div>
+    </section>
+  </main>
+  <script src="dashboard.js"></script>
+</body>
+</html>
