@@ -152,3 +152,73 @@ d3.dsv(";", "balkongdata.csv", row => {
   ritaUvDiagram();
 
 }); // ← avslutar d3.dsv(...).then(data => { ... })
+
+  // Korrelation med jordfukt
+  function korrelation(x, y) {
+    const mx = d3.mean(x), my = d3.mean(y);
+    const num = d3.sum(x.map((v, i) => (v - mx) * (y[i] - my)));
+    const den = Math.sqrt(d3.sum(x.map(v => (v - mx) ** 2)) * d3.sum(y.map(v => (v - my) ** 2)));
+    return num / den;
+  }
+
+  const jordMedel = filtered.map(d => (d.Jord1 + d.Jord2 + d.Jord3) / 3);
+  const faktorer = [
+    { key: "UV", label: "UV-index", color: "gold" },
+    { key: "Vind", label: "Vindstyrka", color: "skyblue" },
+    { key: "Temperatur", label: "Temperatur", color: "tomato" },
+    { key: "Luftfuktighet", label: "Luftfuktighet", color: "deepskyblue" },
+    { key: "Lufttryck", label: "Lufttryck", color: "seagreen" }
+  ];
+
+  const korDiv = d3.select("#korrelation");
+  faktorer.forEach(f => {
+    const korval = korrelation(jordMedel, filtered.map(d => d[f.key]));
+    const rad = korDiv.append("div").style("margin", "6px 0");
+    rad.append("span").text(`${f.label}: `).style("margin-right", "6px");
+    const bar = rad.append("div").style("display", "inline-block")
+      .style("width", "300px").style("height", "12px")
+      .style("background", "#eee").style("vertical-align", "middle");
+    bar.append("div").style("width", `${Math.abs(korval) * 100 / 2}%`)
+      .style("height", "12px")
+      .style("background", korval > 0 ? f.color : "crimson")
+      .style("float", korval >= 0 ? "left" : "right");
+    rad.append("span").text(korval.toFixed(2)).style("margin-left", "8px");
+  });
+  // Torkintervallanalys
+  const grupper = { "08–14": [], "14–20": [], "20–08": [] };
+  filtered.forEach(d => {
+    const h = d.Tid.getHours();
+    if (h >= 8 && h < 14) grupper["08–14"].push(d);
+    else if (h >= 14 && h < 20) grupper["14–20"].push(d);
+    else grupper["20–08"].push(d);
+  });
+
+  const tabell = d3.select("#torkanalys").append("table");
+  const kolumner = ["Intervall", "ΔJord1 (%)", "ΔJord2 (%)", "ΔJord3 (%)", "UV", "Vind", "Temp", "Luftfukt", "Tryck"];
+
+  tabell.append("thead").append("tr")
+    .selectAll("th").data(kolumner).enter().append("th").text(d => d);
+
+  const rows = tabell.append("tbody")
+    .selectAll("tr").data(Object.entries(grupper)).enter().append("tr");
+
+  rows.selectAll("td")
+    .data(([label, grupp]) => {
+      if (grupp.length < 2) return kolumner.map(() => "–");
+      const jord1 = grupp.map(d => d.Jord1);
+      const jord2 = grupp.map(d => d.Jord2);
+      const jord3 = grupp.map(d => d.Jord3);
+      const Δ1 = (jord1.at(-1) - jord1[0]).toFixed(1);
+      const Δ2 = (jord2.at(-1) - jord2[0]).toFixed(1);
+      const Δ3 = (jord3.at(-1) - jord3[0]).toFixed(1);
+      const UV = d3.mean(grupp, d => d.UV)?.toFixed(1);
+      const Vind = d3.mean(grupp, d => d.Vind)?.toFixed(1);
+      const Temp = d3.mean(grupp, d => d.Temperatur)?.toFixed(1);
+      const Luft = d3.mean(grupp, d => d.Luftfuktighet)?.toFixed(1);
+      const Tryck = d3.mean(grupp, d => d.Lufttryck)?.toFixed(1);
+      return [label, Δ1, Δ2, Δ3, UV, Vind, Temp, Luft, Tryck];
+    })
+    .enter().append("td").text(d => d);
+
+
+
