@@ -148,16 +148,17 @@ d3.dsv(";", "balkongdata.csv", row => {
     );
   } // ← slutet på funktionen ritaUvDiagram
 
-  // 👇 Anropa funktionen så UV-grafen visas:
+  // 👇 UV-grafen visas nu
   ritaUvDiagram();
 
-
-
-  // Korrelation med jordfukt
+  // 🔗 Korrelation med jordfukt
   function korrelation(x, y) {
     const mx = d3.mean(x), my = d3.mean(y);
     const num = d3.sum(x.map((v, i) => (v - mx) * (y[i] - my)));
-    const den = Math.sqrt(d3.sum(x.map(v => (v - mx) ** 2)) * d3.sum(y.map(v => (v - my) ** 2)));
+    const den = Math.sqrt(
+      d3.sum(x.map(v => (v - mx) ** 2)) *
+      d3.sum(y.map(v => (v - my) ** 2))
+    );
     return num / den;
   }
 
@@ -184,7 +185,8 @@ d3.dsv(";", "balkongdata.csv", row => {
       .style("float", korval >= 0 ? "left" : "right");
     rad.append("span").text(korval.toFixed(2)).style("margin-left", "8px");
   });
-  // Torkintervallanalys
+
+  // 🕓 Torkintervallanalys
   const grupper = { "08–14": [], "14–20": [], "20–08": [] };
   filtered.forEach(d => {
     const h = d.Tid.getHours();
@@ -220,6 +222,5 @@ d3.dsv(";", "balkongdata.csv", row => {
     })
     .enter().append("td").text(d => d);
 
+}); // ← Avslutar .then(data => { ... })
 
-
-}); // ← avslutar d3.dsv(...).then(data => { ... })
