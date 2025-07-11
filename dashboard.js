@@ -167,3 +167,50 @@ d3.dsv(";", "balkongdata.csv", row => {
       .enter().append("td")
       .text(d => d);
   });
+function ritaUvDiagram() {
+  const svg = d3.select("#uvdiagram").append("svg");
+  const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+  const width = svg.node().clientWidth - margin.left - margin.right;
+  const height = 250 - margin.top - margin.bottom;
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  const x = d3.scaleTime().domain(d3.extent(filtered, d => d.Tid)).range([0, width]);
+  const y = d3.scaleLinear().domain([0, 12]).range([height, 0]);
+
+  g.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
+  g.append("g").call(d3.axisLeft(y));
+
+  // Bakgrundszoner enligt WHO UV-index
+  const uvZoner = [
+    { gräns: 2, färg: "#a8e6cf", etikett: "Låg" },
+    { gräns: 5, färg: "#dcedc1", etikett: "Måttlig" },
+    { gräns: 7, färg: "#ffd3b6", etikett: "Hög" },
+    { gräns: 10, färg: "#ffaaa5", etikett: "Mycket hög" },
+    { gräns: 11, färg: "#ff8b94", etikett: "Extrem" }
+  ];
+
+  uvZoner.forEach((zon, i) => {
+    const yStart = i === 0 ? y(0) : y(uvZoner[i - 1].gräns);
+    const yEnd = y(zon.gräns);
+    g.append("rect")
+      .attr("x", 0)
+      .attr("y", yEnd)
+      .attr("width", width)
+      .attr("height", yStart - yEnd)
+      .attr("fill", zon.färg)
+      .attr("opacity", 0.25);
+  });
+
+  // UV-linje
+  const line = d3.line().x(d => x(d.Tid)).y(d => y(d.UV));
+  g.append("path").datum(filtered).attr("fill", "none")
+    .attr("stroke", "gold").attr("stroke-width", 2).attr("d", line);
+
+  // Legend
+  d3.select("#legend-uv").html(uvZoner.map(zon => `
+    <div>
+      <span style="background:${zon.färg}; width:14px; height:14px; display:inline-block; margin-right:6px;"></span>
+      ${zon.etikett} (${zon.gräns})
+    </div>
+  `).join(""));
+}
