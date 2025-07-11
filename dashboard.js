@@ -135,16 +135,18 @@ d3.dsv(";", "balkongdata.csv", row => {
     const line = d3.line().x(d => x(d.Tid)).y(d => y(d.UV));
     g.append("path").datum(filtered).attr("fill", "none")
       .attr("stroke", "gold").attr("stroke-width", 2).attr("d", line);
-d3.select("#legend-uv").html(
-  uvZoner.map(zon => `
-    <div>
-      <span style="background:${zon.färg}; width:14px; height:14px; display:inline-block; margin-right:6px;"></span>
-      ${zon.etikett} (${zon.gräns})
-    </div>
-  `).join("")
-);
-      // Anropa UV-diagrammet
-  ritaUvDiagram();
+    sd3.select("#legend-uv").html(
+    uvZoner.map(zon => `
+      <div>
+        <span style="background:${zon.färg}; width:14px; height:14px; display:inline-block; margin-right:6px;"></span>
+        ${zon.etikett} (${zon.gräns})
+      </div>
+    `).join("")
+  );
+} // <– avslutar funktionen ritaUvDiagram
 
-}); // Avslutar d3.dsv().then(...)
+// Anropa funktionen:
+ritaUvDiagram();
+
+}); // <– avslutar .then(data => { … })
 
