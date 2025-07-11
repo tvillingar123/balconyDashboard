@@ -143,3 +143,8 @@ d3.select("#legend-uv").html(
     </div>
   `).join("")
 );
+      // Anropa UV-diagrammet
+  ritaUvDiagram();
+
+}); // Avslutar d3.dsv().then(...)
+
