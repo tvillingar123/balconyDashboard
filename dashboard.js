@@ -151,7 +151,7 @@ d3.dsv(";", "balkongdata.csv", row => {
   // 👇 Anropa funktionen så UV-grafen visas:
   ritaUvDiagram();
 
-}); // ← avslutar d3.dsv(...).then(data => { ... })
+
 
   // Korrelation med jordfukt
   function korrelation(x, y) {
@@ -222,3 +222,4 @@ d3.dsv(";", "balkongdata.csv", row => {
 
 
 
+}); // ← avslutar d3.dsv(...).then(data => { ... })
