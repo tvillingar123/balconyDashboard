@@ -35,7 +35,7 @@ d3.dsv(";", "balkongdata.csv", row => {
     UV: "gold"
   };
 
-  // Diagramfunktion för 2-serie-diagram
+  // Gemensam diagramfunktion
   function ritaDiagram(id, lokalKey, posKey, legendId) {
     const svg = d3.select("#" + id).append("svg");
     const margin = { top: 20, right: 20, bottom: 40, left: 50 };
@@ -67,16 +67,18 @@ d3.dsv(";", "balkongdata.csv", row => {
     `);
   }
 
+  // Temperatur, luftfukt, lufttryck
   ritaDiagram("temperatur", "Temperatur", "PosTemperatur", "legend-temperatur");
   ritaDiagram("luftfuktighet", "Luftfuktighet", "PosLuftFuktighet", "legend-luftfuktighet");
   ritaDiagram("lufttryck", "Lufttryck", "PosLufttryck", "legend-lufttryck");
 
-  // Jordfuktighet
-  const svg = d3.select("#jordfukt").append("svg");
+  // Jordfuktdiagram
+  const jordSvg = d3.select("#jordfukt").append("svg");
   const margin = { top: 20, right: 20, bottom: 40, left: 50 };
-  const width = svg.node().clientWidth - margin.left - margin.right;
+  const width = jordSvg.node().clientWidth - margin.left - margin.right;
   const height = 250 - margin.top - margin.bottom;
-  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+  const g = jordSvg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
   const x = d3.scaleTime().domain(d3.extent(filtered, d => d.Tid)).range([0, width]);
   const y = d3.scaleLinear().domain([
     d3.min(filtered, d => Math.min(d.Jord1, d.Jord2, d.Jord3)) * 0.95,
@@ -134,19 +136,19 @@ d3.dsv(";", "balkongdata.csv", row => {
 
     const line = d3.line().x(d => x(d.Tid)).y(d => y(d.UV));
     g.append("path").datum(filtered).attr("fill", "none")
-      .attr("stroke", "gold").attr("stroke-width", 2).attr("d", line);
-    sd3.select("#legend-uv").html(
-    uvZoner.map(zon => `
-      <div>
-        <span style="background:${zon.färg}; width:14px; height:14px; display:inline-block; margin-right:6px;"></span>
-        ${zon.etikett} (${zon.gräns})
-      </div>
-    `).join("")
-  );
-} // <– avslutar funktionen ritaUvDiagram
+      .attr("stroke", färger.UV).attr("stroke-width", 2).attr("d", line);
 
-// Anropa funktionen:
-ritaUvDiagram();
+    d3.select("#legend-uv").html(
+      uvZoner.map(zon => `
+        <div>
+          <span style="background:${zon.färg}; width:14px; height:14px; display:inline-block; margin-right:6px;"></span>
+          ${zon.etikett} (${zon.gräns})
+        </div>
+      `).join("")
+    );
+  } // ← slutet på funktionen ritaUvDiagram
 
-}); // <– avslutar .then(data => { … })
+  // 👇 Anropa funktionen så UV-grafen visas:
+  ritaUvDiagram();
 
+}); // ← avslutar d3.dsv(...).then(data => { ... })
