@@ -193,7 +193,12 @@ factors.forEach(f => {
 });
 
 // Drying interval analysis
-const intervals = { "08–14": [], "14–20": [], "20–08": [] };
+const intervals = {
+  "08–14": [],
+  "14–20": [],
+  "20–08": []
+};
+
 filtered.forEach(d => {
   const hour = d.Time.getHours();
   if (hour >= 8 && hour < 14) intervals["08–14"].push(d);
@@ -202,13 +207,30 @@ filtered.forEach(d => {
 });
 
 const table = d3.select("#drying-analysis").append("table");
-const columns = ["Interval", "ΔSoil1 (%)", "ΔSoil2 (%)", "ΔSoil3 (%)", "UV", "Wind", "Temp", "Humidity", "Pressure"];
+const columns = [
+  "Interval",
+  "Δ Soil1 (%)",
+  "Δ Soil2 (%)",
+  "Δ Soil3 (%)",
+  "UV",
+  "Wind",
+  "Temperature",
+  "Humidity",
+  "Pressure"
+];
 
 table.append("thead").append("tr")
-  .selectAll("th").data(columns).enter().append("th").text(d => d);
+  .selectAll("th")
+  .data(columns)
+  .enter()
+  .append("th")
+  .text(d => d);
 
 const rows = table.append("tbody")
-  .selectAll("tr").data(Object.entries(intervals)).enter().append("tr");
+  .selectAll("tr")
+  .data(Object.entries(intervals))
+  .enter()
+  .append("tr");
 
 rows.selectAll("td")
   .data(([label, group]) => {
@@ -222,14 +244,14 @@ rows.selectAll("td")
     const Δ2 = (soil2.at(-1) - soil2[0]).toFixed(1);
     const Δ3 = (soil3.at(-1) - soil3[0]).toFixed(1);
 
-    const UV = d3.mean(group, d => d.UV)?.toFixed(1);
-    const Wind = d3.mean(group, d => d.Wind)?.toFixed(1);
-    const Temp = d3.mean(group, d => d.Temperature)?.toFixed(1);
-    const Humidity = d3.mean(group, d => d.Humidity)?.toFixed(1);
-    const Pressure = d3.mean(group, d => d.Pressure)?.toFixed(1);
+    const uv = d3.mean(group, d => d.UV)?.toFixed(1);
+    const wind = d3.mean(group, d => d.Wind)?.toFixed(1);
+    const temp = d3.mean(group, d => d.Temperature)?.toFixed(1);
+    const humid = d3.mean(group, d => d.Humidity)?.toFixed(1);
+    const press = d3.mean(group, d => d.Pressure)?.toFixed(1);
 
-    return [label, Δ1, Δ2, Δ3, UV, Wind, Temp, Humidity, Pressure];
+    return [label, Δ1, Δ2, Δ3, uv, wind, temp, humid, press];
   })
-  .enter().append("td").text(d => d);
-
-      
+  .enter()
+  .append("td")
+  .text(d => d);
