@@ -142,9 +142,27 @@ function loadDashboard(selectedTeam) {
 
       // ☀️ UV chart
       const uvSvg = d3.select("#uvchart").append("svg");
+      
       const gUv = uvSvg.append("g").attr("transform", `translate(50,20)`);
       const uvX = d3.scaleTime().domain(d3.extent(filtered, d => d.Time)).range([0, uvSvg.node().clientWidth - 70]);
       const uvY = d3.scaleLinear().domain([0, 12]).range([230, 0]);
+const zones = [
+  { min: 0, max: 2, color: "#A8E6CF", label: "Low" },
+  { min: 3, max: 5, color: "#FFD3B6", label: "Moderate" },
+  { min: 6, max: 7, color: "#FF8C94", label: "High" },
+  { min: 8, max: 10, color: "#FF6F61", label: "Very High" },
+  { min: 11, max: 15, color: "#6A1B9A", label: "Extreme" }
+];
+
+zones.forEach(z => {
+  gUv.append("rect")
+    .attr("x", 0)
+    .attr("width", uvX.range()[1])
+    .attr("y", uvY(z.max))
+    .attr("height", uvY(z.min) - uvY(z.max))
+    .attr("fill", z.color)
+    .attr("opacity", 0.3);
+});
 
       gUv.append("g").attr("transform", `translate(0,230)`).call(d3.axisBottom(uvX));
       gUv.append("g").call(d3.axisLeft(uvY));
