@@ -145,8 +145,13 @@ function drawUVChart(id, key, legendId, data, colors) {
   const height = 250;
   const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-  const x = d3.scaleTime().domain(d3.extent(data, d => d.Time)).range([0, width]);
-  const y = d3.scaleLinear().domain([0, 15]).range([height - margin.bottom, 0]);
+  const x = d3.scaleTime()
+    .domain(d3.extent(data, d => d.Time))
+    .range([0, width]);
+
+  const y = d3.scaleLinear()
+    .domain([0, 15]) // WHO UV range
+    .range([height - margin.bottom, 0]);
 
   // WHO UV shading
   const zones = [
@@ -167,20 +172,7 @@ function drawUVChart(id, key, legendId, data, colors) {
       .attr("opacity", 0.3);
   });
 
-  g.append("g").attr("transform", `translate(0,${height - margin.bottom})`)
-    .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%d %b %H:%M")));
-  g.append("g").call(d3.axisLeft(y));
-
-  const line = d3.line().x(d => x(d.Time)).y(d => y(d[key]));
-
-  g.append("path").datum(data).attr("fill", "none")
-    .attr("stroke", colors[key]).attr("stroke-width", 2).attr("d", line);
-
-  d3.select("#" + legendId).html(`
-    <div><span style="background:${colors[key]};width:12px;height:12px;display:inline-block;margin-right:4px"></span> UV Index</div>
-  `);
-}
-  // Add WHO UV zone labels
+  // UV zone labels
   zones.forEach(z => {
     g.append("text")
       .attr("x", 6)
@@ -190,7 +182,27 @@ function drawUVChart(id, key, legendId, data, colors) {
       .style("fill", "#333");
   });
 
-  // Add tooltip for UV points
+  // Axes
+  g.append("g")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%d %b %H:%M")));
+
+  g.append("g")
+    .call(d3.axisLeft(y));
+
+  // Line
+  const line = d3.line()
+    .x(d => x(d.Time))
+    .y(d => y(d[key]));
+
+  g.append("path")
+    .datum(data)
+    .attr("fill", "none")
+    .attr("stroke", colors[key])
+    .attr("stroke-width", 2)
+    .attr("d", line);
+
+  // Tooltip on points
   g.selectAll("circle." + key)
     .data(data)
     .enter()
@@ -210,4 +222,9 @@ function drawUVChart(id, key, legendId, data, colors) {
     .on("mouseout", () => {
       tooltip.style("display", "none");
     });
+
+  // Legend
+  d3.select("#" + legendId).html(`
+    <div><span style="background:${colors[key]};width:12px;height:12px;display:inline-block;margin-right:4px"></span> UV Index</div>
+  `);
 }
