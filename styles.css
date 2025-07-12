@@ -1,66 +1,87 @@
+/* Layout */
 body {
   font-family: system-ui, sans-serif;
   margin: 0;
-  padding: 1rem;
-  background: #f9f9fc;
+  padding: 0;
+  background: #f9f9f9;
   color: #333;
 }
 
-h1, h2 {
-  color: #005a9c;
+main {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* Headings */
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: 1.4rem;
   margin-top: 2rem;
+  margin-bottom: 0.5rem;
 }
 
-section {
-  margin-bottom: 3rem;
-}
-
-svg {
+/* Chart Containers */
+#temperature,
+#uvchart {
   width: 100%;
-  height: 250px;
-  display: block;
-  background: #fff;
-  border: 1px solid #ccc;
+  min-height: 300px;
+  margin-bottom: 20px;
+}
+
+/* Legends */
+.legend {
+  font-size: 0.9rem;
+  margin-bottom: 40px;
 }
 
 .legend div {
-  display: inline-block;
-  margin-right: 12px;
-  font-size: 0.9rem;
+  margin-bottom: 6px;
 }
 
-.legend span {
-  width: 16px;
-  height: 16px;
-  display: inline-block;
-  margin-right: 6px;
-  vertical-align: middle;
-  border-radius: 2px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-  background: #fff;
-  border: 1px solid #ccc;
-}
-
-th, td {
-  padding: 8px;
-  border: 1px solid #ccc;
-  text-align: center;
-}
-
-thead {
-  background: #eee;
-}
-
+/* Latest Data Display */
 #latest {
-  padding: 0.75rem;
-  background: #e8f4fc;
-  border: 1px solid #aadffd;
   font-weight: bold;
-  margin-bottom: 2rem;
+  margin: 12px 0;
+  font-size: 1rem;
+}
+
+/* Team Selector */
+#teamSelect {
+  margin-bottom: 20px;
+  padding: 6px;
+  font-size: 1rem;
+}
+
+/* Tooltip Styling */
+#tooltip {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 8px;
+  pointer-events: none;
+  font-size: 0.9rem;
   border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: none;
+  z-index: 10;
+}
+
+/* Responsive Tweaks */
+@media (max-width: 600px) {
+  h1 {
+    font-size: 1.6rem;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+  }
+
+  #teamSelect {
+    width: 100%;
+  }
 }
