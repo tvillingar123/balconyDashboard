@@ -29,7 +29,7 @@ function loadDashboard(selectedTeam) {
   });
 
   const filter = selectedTeam === "All" ? "" : `&Team=eq.${selectedTeam}`;
-  const url = `${SUPABASE_URL}/rest/v1/Balcony?select=*&order=created_at.asc${filter}`;
+  const url = `${SUPABASE_URL}/rest/v1/BalconyData?select=*&order=created_at.asc${filter}`;
 
   fetch(url, {
     headers: { apikey: SUPABASE_KEY }
