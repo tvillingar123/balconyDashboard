@@ -179,36 +179,37 @@ function drawUVChart(id, key, legendId, data, colors) {
     <div><span style="background:${colors[key]};width:12px;height:12px;display:inline-block;margin-right:4px"></span> UV Index</div>
   `);
 }
-  // Optional: Add WHO UV zone labels
-  zones.forEach(z => {
-    g.append("text")
-      .attr("x", 6)
-      .attr("y", y((z.min + z.max) / 2))
-      .text(z.label)
-      .style("font-size", "10px")
-      .style("fill", "#333");
+// WHO UV zone labels
+zones.forEach(z => {
+  g.append("text")
+    .attr("x", 6)
+    .attr("y", y((z.min + z.max) / 2))
+    .text(z.label)
+    .style("font-size", "10px")
+    .style("fill", "#333");
+});
+
+// UV tooltips
+g.selectAll("circle." + key)
+  .data(data)
+  .enter()
+  .append("circle")
+  .attr("cx", d => x(d.Time))
+  .attr("cy", d => y(d[key]))
+  .attr("r", 4)
+  .attr("fill", colors[key])
+  .on("mouseover", (event, d) => {
+    tooltip.style("display", "block")
+      .html(`<strong>${key}</strong><br>UV: ${d[key]}<br>${d.Time.toLocaleString()}`);
+  })
+  .on("mousemove", event => {
+    tooltip.style("left", (event.pageX + 12) + "px")
+      .style("top", (event.pageY - 28) + "px");
+  })
+  .on("mouseout", () => {
+    tooltip.style("display", "none");
   });
 
-  // Add tooltip for UV points
-  g.selectAll("circle." + key)
-    .data(data)
-    .enter()
-    .append("circle")
-    .attr("cx", d => x(d.Time))
-    .attr("cy", d => y(d[key]))
-    .attr("r", 4)
-    .attr("fill", colors[key])
-    .on("mouseover", (event, d) => {
-      tooltip.style("display", "block")
-        .html(`<strong>${key}</strong><br>UV: ${d[key]}<br>${d.Time.toLocaleString()}`);
-    })
-    .on("mousemove", event => {
-      tooltip.style("left", (event.pageX + 12) + "px")
-        .style("top", (event.pageY - 28) + "px");
-    })
-    .on("mouseout", () => {
-      tooltip.style("display", "none");
-    });
 }
 
 
