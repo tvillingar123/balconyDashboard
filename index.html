@@ -1,108 +1,151 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Balkongstatus</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="manifest" href="manifest.json">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Balcony Dashboard</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
   <style>
+    /* Simple default styling if styles.css isn't loaded */
     body {
-      font-family: sans-serif;
-      margin: 20px;
-      background: #f9f9f9;
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background: #f9f9fc;
+      color: #333;
     }
+
+    h1, h2 {
+      color: #005a9c;
+      margin-top: 2rem;
+    }
+
     section {
-      margin-bottom: 40px;
+      margin-bottom: 3rem;
     }
+
     svg {
       width: 100%;
       height: 250px;
-      background: white;
-      box-shadow: 0 0 8px #ccc;
+      display: block;
+      background: #fff;
+      border: 1px solid #ccc;
     }
-    h2, h3 {
-      margin-bottom: 8px;
-    }
-    #legend-temperatur, #legend-luftfuktighet, #legend-lufttryck,
-    #legend-jordfukt, #legend-uv {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 10px;
-    }
-    #legend-temperatur div, #legend-luftfuktighet div, #legend-lufttryck div,
-    #legend-jordfukt div, #legend-uv div {
-      font-size: 14px;
-    }
-    #legend-temperatur span, #legend-luftfuktighet span, #legend-lufttryck span,
-    #legend-jordfukt span, #legend-uv span {
+
+    .legend div {
       display: inline-block;
-      width: 14px;
-      height: 14px;
+      margin-right: 12px;
+      font-size: 0.9rem;
+    }
+
+    .legend span {
+      width: 16px;
+      height: 16px;
+      display: inline-block;
       margin-right: 6px;
       vertical-align: middle;
+      border-radius: 2px;
     }
+
     table {
-      border-collapse: collapse;
       width: 100%;
-      background: white;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      background: #fff;
+      border: 1px solid #ccc;
     }
+
     th, td {
-      padding: 6px 10px;
+      padding: 8px;
       border: 1px solid #ccc;
       text-align: center;
     }
-    th {
-      background: #efefef;
+
+    thead {
+      background: #eee;
+    }
+
+    #latest {
+      padding: 0.75rem;
+      background: #e8f4fc;
+      border: 1px solid #aadffd;
+      font-weight: bold;
+      margin-bottom: 2rem;
+      border-radius: 4px;
+    }
+
+    #teamSelect {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      font-size: 1rem;
     }
   </style>
 </head>
 <body>
+  <h1>Balcony Dashboard</h1>
 
-  <h2>Balkongdashboard</h2>
+  <!-- Team selector -->
+  <label for="teamSelect">Choose team:</label>
+  <select id="teamSelect">
+    <option value="All">All</option>
+    <option value="Alpha">Alpha</option>
+    <option value="Beta">Beta</option>
+    <option value="Gamma">Gamma</option>
+    <!-- Add or remove options based on your database -->
+  </select>
 
-  <!-- Temperatur -->
-  <section id="temperatur">
-    <h3>Temperatur</h3>
-    <div id="legend-temperatur"></div>
+  <!-- Latest measurement summary -->
+  <div id="latest">Loading latest measurement...</div>
+
+  <!-- Temperature chart -->
+  <section>
+    <h2>Temperature</h2>
+    <div id="temperature"></div>
+    <div id="legend-temperature" class="legend"></div>
   </section>
 
-  <!-- Luftfuktighet -->
-  <section id="luftfuktighet">
-    <h3>Luftfuktighet</h3>
-    <div id="legend-luftfuktighet"></div>
+  <!-- Humidity chart -->
+  <section>
+    <h2>Humidity</h2>
+    <div id="humidity"></div>
+    <div id="legend-humidity" class="legend"></div>
   </section>
 
-  <!-- Lufttryck -->
-  <section id="lufttryck">
-    <h3>Lufttryck</h3>
-    <div id="legend-lufttryck"></div>
+  <!-- Pressure chart -->
+  <section>
+    <h2>Air Pressure</h2>
+    <div id="pressure"></div>
+    <div id="legend-pressure" class="legend"></div>
   </section>
 
-  <!-- Jordfukt -->
-  <section id="jordfukt">
-    <h3>Jordfuktighet</h3>
-    <div id="legend-jordfukt"></div>
+  <!-- Soil moisture chart -->
+  <section>
+    <h2>Soil Moisture</h2>
+    <div id="soilmoisture"></div>
+    <div id="legend-soilmoisture" class="legend"></div>
   </section>
 
-  <!-- UV-index -->
-  <section id="uvdiagram">
-    <h3>UV-index</h3>
-    <div id="legend-uv"></div>
+  <!-- UV Index chart -->
+  <section>
+    <h2>UV Index</h2>
+    <div id="uvchart"></div>
+    <div id="legend-uv" class="legend"></div>
   </section>
 
-  <!-- Korrelation -->
-  <section id="korrelation">
-    <h3>Korrelation med Jordfuktighet</h3>
+  <!-- Correlation section -->
+  <section>
+    <h2>Correlation with Soil Moisture</h2>
+    <div id="correlation"></div>
   </section>
 
-  <!-- Torkintervallanalys -->
-  <section id="torkanalys">
-    <h3>Torkintervallanalys</h3>
+  <!-- Drying interval analysis -->
+  <section>
+    <h2>Drying Interval Analysis</h2>
+    <div id="drying-analysis"></div>
   </section>
 
+  <!-- Load visualization logic -->
   <script src="dashboard.js"></script>
-
 </body>
 </html>
