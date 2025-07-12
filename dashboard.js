@@ -29,6 +29,9 @@ function loadDashboard(selectedTeam) {
   })
     .then(res => res.json())
     .then(rawData => {
+        console.log("Raw response:", rawData); // 👈 See what you're getting
+    .then(res => res.json())
+    .then(rawData => {
       const data = rawData.map(row => ({
         Time: new Date(row.created_at),
         Temperature: parseFloat(row.MTemp),
