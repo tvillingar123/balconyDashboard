@@ -2,7 +2,6 @@
 const SUPABASE_URL = "https://wcnoghdwlqshwpnoknar.supabase.co";
 const SUPABASE_KEY = "sb_publishable_HgB8uTl-KWqX04Mbe1I5qg_OtKAmkEy";
 
-
 // DOM elements
 const teamSelect = document.getElementById("teamSelect");
 const latestDiv = document.getElementById("latest");
