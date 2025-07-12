@@ -28,7 +28,7 @@ function loadDashboard(selectedTeam) {
     if (el) el.innerHTML = "";
   });
 
-  const filter = selectedTeam === "All" ? "" : `&Team=eq.${selectedTeam}`;
+  const filter = "";
   const url = `${SUPABASE_URL}/rest/v1/BalconyData?select=*&order=created_at.asc${filter}`;
 
   fetch(url, {
