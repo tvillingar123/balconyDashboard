@@ -255,5 +255,5 @@ rows.selectAll("td")
   .enter()
   .append("td")
   .text(d => d);
-      }); // ← closes .then(rawData => { ... })
+      });
 }
