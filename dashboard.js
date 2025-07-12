@@ -180,7 +180,8 @@ function drawUVChart(id, key, legendId, data, colors) {
     <div><span style="background:${colors[key]};width:12px;height:12px;display:inline-block;margin-right:4px"></span> UV Index</div>
   `);
 }
-zones.forEach(z => {
+  // Add WHO UV zone labels
+  zones.forEach(z => {
     g.append("text")
       .attr("x", 6)
       .attr("y", y((z.min + z.max) / 2))
@@ -189,6 +190,7 @@ zones.forEach(z => {
       .style("fill", "#333");
   });
 
+  // Add tooltip for UV points
   g.selectAll("circle." + key)
     .data(data)
     .enter()
