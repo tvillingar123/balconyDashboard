@@ -1,6 +1,6 @@
 // Supabase config
 const SUPABASE_URL = "https://wcnoghdwlqshwpnoknar.supabase.co";
-const SUPABASE_KEY = "sb_publishable_HgB8uTl-KWqX04Mbe1I5qg_OtKAmkEy"; 
+const SUPABASE_KEY = "sb_publishable_HgB8uTl-KWqX04Mbe1I5qg_OtKAmkEy";
 
 // DOM elements
 const teamSelect = document.getElementById("teamSelect");
@@ -15,8 +15,15 @@ teamSelect.addEventListener("change", () => {
 loadDashboard("All");
 
 function loadDashboard(selectedTeam) {
-  // Clear previous charts
-  ["temperature", "humidity", "pressure", "soilmoisture", "uvchart", "correlation", "drying-analysis"].forEach(id => {
+  // Clear previous content
+  [
+    "temperature", "legend-temperature",
+    "humidity", "legend-humidity",
+    "pressure", "legend-pressure",
+    "soilmoisture", "legend-soilmoisture",
+    "uvchart", "legend-uv",
+    "correlation", "drying-analysis"
+  ].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = "";
   });
@@ -27,11 +34,16 @@ function loadDashboard(selectedTeam) {
   fetch(url, {
     headers: { apikey: SUPABASE_KEY }
   })
-    .then(res => res.json())
-    .then(rawData => {
-        console.log("Raw response:", rawData); // 👈 See what you're getting
-    .then(res => res.json())
-    .then(rawData => {
+    .then(async res => {
+      const rawData = await res.json();
+      console.log("Supabase response:", rawData);
+
+      if (!res.ok || !Array.isArray(rawData)) {
+        const message = rawData.message || rawData.error || "Unexpected response.";
+        latestDiv.innerText = `Error: ${message}`;
+        return;
+      }
+
       const data = rawData.map(row => ({
         Time: new Date(row.created_at),
         Temperature: parseFloat(row.MTemp),
@@ -48,30 +60,24 @@ function loadDashboard(selectedTeam) {
       }));
 
       const filtered = data.filter(d => !Object.values(d).some(v => isNaN(v)));
-
       if (filtered.length === 0) {
-        latestDiv.innerText = "No data available for selected team.";
+        latestDiv.innerText = "No valid data found.";
         return;
       }
 
-      const latest = filtered.at(-1);
+      const latest = filtered[filtered.length - 1];
       latestDiv.innerText = `Latest → UV: ${latest.UV}, Temp: ${latest.Temperature}°C, Humidity: ${latest.Humidity}%`;
 
       const colors = {
-        Temperature: "tomato",
-        PosTemperature: "steelblue",
-        Humidity: "skyblue",
-        PosHumidity: "gray",
-        Pressure: "seagreen",
-        PosPressure: "goldenrod",
-        Soil1: "saddlebrown",
-        Soil2: "darkolivegreen",
-        Soil3: "darkcyan",
+        Temperature: "tomato", PosTemperature: "steelblue",
+        Humidity: "skyblue", PosHumidity: "gray",
+        Pressure: "seagreen", PosPressure: "goldenrod",
+        Soil1: "saddlebrown", Soil2: "darkolivegreen", Soil3: "darkcyan",
         UV: "gold"
       };
 
-      // Chart function
-      function drawChart(id, localKey, posKey, legendId) {
+      // 📈 Shared line chart function
+      function drawChart(id, keyA, keyB, legendId) {
         const svg = d3.select("#" + id).append("svg");
         const margin = { top: 20, right: 20, bottom: 40, left: 50 };
         const width = svg.node().clientWidth - margin.left - margin.right;
@@ -80,8 +86,8 @@ function loadDashboard(selectedTeam) {
 
         const x = d3.scaleTime().domain(d3.extent(filtered, d => d.Time)).range([0, width]);
         const y = d3.scaleLinear().domain([
-          d3.min(filtered, d => Math.min(d[localKey], d[posKey])) * 0.95,
-          d3.max(filtered, d => Math.max(d[localKey], d[posKey])) * 1.05
+          d3.min(filtered, d => Math.min(d[keyA], d[keyB])) * 0.95,
+          d3.max(filtered, d => Math.max(d[keyA], d[keyB])) * 1.05
         ]).range([height, 0]);
 
         g.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
@@ -90,15 +96,15 @@ function loadDashboard(selectedTeam) {
         const line = key => d3.line().x(d => x(d.Time)).y(d => y(d[key]));
 
         g.append("path").datum(filtered).attr("fill", "none")
-          .attr("stroke", colors[localKey]).attr("stroke-width", 2).attr("d", line(localKey));
+          .attr("stroke", colors[keyA]).attr("stroke-width", 2).attr("d", line(keyA));
 
         g.append("path").datum(filtered).attr("fill", "none")
-          .attr("stroke", colors[posKey]).attr("stroke-width", 2)
-          .attr("stroke-dasharray", "4,4").attr("d", line(posKey));
+          .attr("stroke", colors[keyB]).attr("stroke-width", 2)
+          .attr("stroke-dasharray", "4,4").attr("d", line(keyB));
 
         d3.select("#" + legendId).html(`
-          <div><span style="background:${colors[localKey]}"></span> Local</div>
-          <div><span style="background:${colors[posKey]}; border:1px dashed #333"></span> POS</div>
+          <div><span style="background:${colors[keyA]}"></span> Local</div>
+          <div><span style="background:${colors[keyB]}; border:1px dashed #333"></span> POS</div>
         `);
       }
 
@@ -106,7 +112,7 @@ function loadDashboard(selectedTeam) {
       drawChart("humidity", "Humidity", "PosHumidity", "legend-humidity");
       drawChart("pressure", "Pressure", "PosPressure", "legend-pressure");
 
-      // Soil moisture chart
+      // 🟫 Soil moisture chart
       const soilSvg = d3.select("#soilmoisture").append("svg");
       const margin = { top: 20, right: 20, bottom: 40, left: 50 };
       const width = soilSvg.node().clientWidth - margin.left - margin.right;
@@ -134,7 +140,7 @@ function loadDashboard(selectedTeam) {
         <div><span style="background:${colors.Soil3}"></span> Box 3</div>
       `);
 
-      // UV chart
+      // ☀️ UV chart
       const uvSvg = d3.select("#uvchart").append("svg");
       const gUv = uvSvg.append("g").attr("transform", `translate(50,20)`);
       const uvX = d3.scaleTime().domain(d3.extent(filtered, d => d.Time)).range([0, uvSvg.node().clientWidth - 70]);
@@ -149,114 +155,96 @@ function loadDashboard(selectedTeam) {
 
       d3.select("#legend-uv").html(`<div><span style="background:${colors.UV}"></span> UV Index</div>`);
 
-      // Correlation analysis
-function correlation(x, y) {
-  const meanX = d3.mean(x);
-  const meanY = d3.mean(y);
-  const numerator = d3.sum(x.map((val, i) => (val - meanX) * (y[i] - meanY)));
-  const denominator = Math.sqrt(
-    d3.sum(x.map(val => (val - meanX) ** 2)) *
-    d3.sum(y.map(val => (val - meanY) ** 2))
-  );
-  return numerator / denominator;
-}
+      // 🔗 Correlation analysis
+      function correlation(x, y) {
+        const mx = d3.mean(x), my = d3.mean(y);
+        const num = d3.sum(x.map((v, i) => (v - mx) * (y[i] - my)));
+        const den = Math.sqrt(
+          d3.sum(x.map(v => (v - mx) ** 2)) *
+          d3.sum(y.map(v => (v - my) ** 2))
+        );
+        return num / den;
+      }
 
-const avgSoil = filtered.map(d => (d.Soil1 + d.Soil2 + d.Soil3) / 3);
+            const avgSoil = filtered.map(d => (d.Soil1 + d.Soil2 + d.Soil3) / 3);
 
-const factors = [
-  { key: "UV", label: "UV Index", color: "gold" },
-  { key: "Wind", label: "Wind Speed", color: "skyblue" },
-  { key: "Temperature", label: "Temperature", color: "tomato" },
-  { key: "Humidity", label: "Humidity", color: "deepskyblue" },
-  { key: "Pressure", label: "Air Pressure", color: "seagreen" }
-];
+      const factors = [
+        { key: "UV", label: "UV Index", color: "gold" },
+        { key: "Wind", label: "Wind Speed", color: "skyblue" },
+        { key: "Temperature", label: "Temperature", color: "tomato" },
+        { key: "Humidity", label: "Humidity", color: "deepskyblue" },
+        { key: "Pressure", label: "Air Pressure", color: "seagreen" }
+      ];
 
-const correlationDiv = d3.select("#correlation");
-factors.forEach(f => {
-  const factorValues = filtered.map(d => d[f.key]);
-  const value = correlation(avgSoil, factorValues);
+      const correlationDiv = d3.select("#correlation");
+      factors.forEach(f => {
+        const values = filtered.map(d => d[f.key]);
+        const corr = correlation(avgSoil, values);
 
-  const row = correlationDiv.append("div").style("margin", "6px 0");
-  row.append("span").text(`${f.label}: `).style("margin-right", "6px");
+        const row = correlationDiv.append("div").style("margin", "6px 0");
+        row.append("span").text(`${f.label}: `).style("margin-right", "6px");
 
-  const bar = row.append("div")
-    .style("display", "inline-block")
-    .style("width", "300px")
-    .style("height", "12px")
-    .style("background", "#eee")
-    .style("vertical-align", "middle");
+        const bar = row.append("div")
+          .style("display", "inline-block")
+          .style("width", "300px")
+          .style("height", "12px")
+          .style("background", "#eee")
+          .style("vertical-align", "middle");
 
-  bar.append("div")
-    .style("width", `${Math.abs(value) * 100 / 2}%`)
-    .style("height", "12px")
-    .style("background", value > 0 ? f.color : "crimson")
-    .style("float", value >= 0 ? "left" : "right");
+        bar.append("div")
+          .style("width", `${Math.abs(corr) * 100 / 2}%`)
+          .style("height", "12px")
+          .style("background", corr > 0 ? f.color : "crimson")
+          .style("float", corr >= 0 ? "left" : "right");
 
-  row.append("span").text(value.toFixed(2)).style("margin-left", "8px");
-});
-
-// Drying interval analysis
-const intervals = {
-  "08–14": [],
-  "14–20": [],
-  "20–08": []
-};
-
-filtered.forEach(d => {
-  const hour = d.Time.getHours();
-  if (hour >= 8 && hour < 14) intervals["08–14"].push(d);
-  else if (hour >= 14 && hour < 20) intervals["14–20"].push(d);
-  else intervals["20–08"].push(d);
-});
-
-const table = d3.select("#drying-analysis").append("table");
-const columns = [
-  "Interval",
-  "Δ Soil1 (%)",
-  "Δ Soil2 (%)",
-  "Δ Soil3 (%)",
-  "UV",
-  "Wind",
-  "Temperature",
-  "Humidity",
-  "Pressure"
-];
-
-table.append("thead").append("tr")
-  .selectAll("th")
-  .data(columns)
-  .enter()
-  .append("th")
-  .text(d => d);
-
-const rows = table.append("tbody")
-  .selectAll("tr")
-  .data(Object.entries(intervals))
-  .enter()
-  .append("tr");
-
-rows.selectAll("td")
-  .data(([label, group]) => {
-    if (group.length < 2) return columns.map(() => "–");
-
-    const soil1 = group.map(d => d.Soil1);
-    const soil2 = group.map(d => d.Soil2);
-    const soil3 = group.map(d => d.Soil3);
-
-    const Δ1 = (soil1.at(-1) - soil1[0]).toFixed(1);
-    const Δ2 = (soil2.at(-1) - soil2[0]).toFixed(1);
-    const Δ3 = (soil3.at(-1) - soil3[0]).toFixed(1);
-
-    const uv = d3.mean(group, d => d.UV)?.toFixed(1);
-    const wind = d3.mean(group, d => d.Wind)?.toFixed(1);
-    const temp = d3.mean(group, d => d.Temperature)?.toFixed(1);
-    const humid = d3.mean(group, d => d.Humidity)?.toFixed(1);
-    const press = d3.mean(group, d => d.Pressure)?.toFixed(1);
-
-    return [label, Δ1, Δ2, Δ3, uv, wind, temp, humid, press];
-  })
-  .enter()
-  .append("td")
-  .text(d => d);
+        row.append("span").text(corr.toFixed(2)).style("margin-left", "8px");
       });
+
+      // 🕓 Drying interval analysis
+      const intervals = { "08–14": [], "14–20": [], "20–08": [] };
+      filtered.forEach(d => {
+        const h = d.Time.getHours();
+        if (h >= 8 && h < 14) intervals["08–14"].push(d);
+        else if (h >= 14 && h < 20) intervals["14–20"].push(d);
+        else intervals["20–08"].push(d);
+      });
+
+      const table = d3.select("#drying-analysis").append("table");
+      const columns = [
+        "Interval", "Δ Soil1 (%)", "Δ Soil2 (%)", "Δ Soil3 (%)",
+        "UV", "Wind", "Temperature", "Humidity", "Pressure"
+      ];
+
+      table.append("thead").append("tr")
+        .selectAll("th").data(columns).enter().append("th").text(d => d);
+
+      const rows = table.append("tbody")
+        .selectAll("tr").data(Object.entries(intervals)).enter().append("tr");
+
+      rows.selectAll("td")
+        .data(([label, group]) => {
+          if (group.length < 2) return columns.map(() => "–");
+
+          const soil1 = group.map(d => d.Soil1);
+          const soil2 = group.map(d => d.Soil2);
+          const soil3 = group.map(d => d.Soil3);
+
+          const Δ1 = (soil1.at(-1) - soil1[0]).toFixed(1);
+          const Δ2 = (soil2.at(-1) - soil2[0]).toFixed(1);
+          const Δ3 = (soil3.at(-1) - soil3[0]).toFixed(1);
+
+          const uv = d3.mean(group, d => d.UV)?.toFixed(1);
+          const wind = d3.mean(group, d => d.Wind)?.toFixed(1);
+          const temp = d3.mean(group, d => d.Temperature)?.toFixed(1);
+          const humid = d3.mean(group, d => d.Humidity)?.toFixed(1);
+          const press = d3.mean(group, d => d.Pressure)?.toFixed(1);
+
+          return [label, Δ1, Δ2, Δ3, uv, wind, temp, humid, press];
+        })
+        .enter().append("td").text(d => d);
+    })
+    .catch(err => {
+      latestDiv.innerText = "Failed to load data from Supabase.";
+      console.error("Fetch error:", err);
+    });
 }
