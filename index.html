@@ -4,149 +4,34 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Balcony Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
   <script src="https://d3js.org/d3.v7.min.js"></script>
-  <link rel="stylesheet" href="styles.css" />
-  <style>
-    /* Simple default styling if styles.css isn't loaded */
-    body {
-      font-family: system-ui, sans-serif;
-      margin: 0;
-      padding: 1rem;
-      background: #f9f9fc;
-      color: #333;
-    }
-
-    h1, h2 {
-      color: #005a9c;
-      margin-top: 2rem;
-    }
-
-    section {
-      margin-bottom: 3rem;
-    }
-
-    svg {
-      width: 100%;
-      height: 250px;
-      display: block;
-      background: #fff;
-      border: 1px solid #ccc;
-    }
-
-    .legend div {
-      display: inline-block;
-      margin-right: 12px;
-      font-size: 0.9rem;
-    }
-
-    .legend span {
-      width: 16px;
-      height: 16px;
-      display: inline-block;
-      margin-right: 6px;
-      vertical-align: middle;
-      border-radius: 2px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-      background: #fff;
-      border: 1px solid #ccc;
-    }
-
-    th, td {
-      padding: 8px;
-      border: 1px solid #ccc;
-      text-align: center;
-    }
-
-    thead {
-      background: #eee;
-    }
-
-    #latest {
-      padding: 0.75rem;
-      background: #e8f4fc;
-      border: 1px solid #aadffd;
-      font-weight: bold;
-      margin-bottom: 2rem;
-      border-radius: 4px;
-    }
-
-    #teamSelect {
-      margin-top: 1rem;
-      padding: 0.5rem;
-      font-size: 1rem;
-    }
-  </style>
 </head>
 <body>
-  <h1>Balcony Dashboard</h1>
+  <main style="max-width: 900px; margin: auto; padding: 20px;">
+    <h1>🌿 Balcony Dashboard</h1>
 
-    <!-- Team selector -->
-  <label for="teamSelect">Choose team:</label>
-  <select id="teamSelect">
-    <option value="All">All</option>
-    <option value="Alpha">Alpha</option>
-    <option value="Beta">Beta</option>
-    <option value="Gamma">Gamma</option>
-    <!-- Add or remove options based on your database -->
-  </select>
+    <!-- Team Selector -->
+    <label for="teamSelect">Select Team:</label>
+    <select id="teamSelect">
+      <option value="All">All</option>
+      <!-- Add more team options here -->
+    </select>
 
+    <!-- Latest Data Display -->
+    <div id="latest" style="margin: 12px 0; font-weight: bold;"></div>
 
-  <!-- Latest measurement summary -->
-  <div id="latest">Loading latest measurement...</div>
-
-  <!-- Temperature chart -->
-  <section>
-    <h2>Temperature</h2>
+    <!-- Temperature Chart -->
+    <h2>🌡️ Temperature</h2>
     <div id="temperature"></div>
     <div id="legend-temperature" class="legend"></div>
-  </section>
 
-  <!-- Humidity chart -->
-  <section>
-    <h2>Humidity</h2>
-    <div id="humidity"></div>
-    <div id="legend-humidity" class="legend"></div>
-  </section>
-
-  <!-- Pressure chart -->
-  <section>
-    <h2>Air Pressure</h2>
-    <div id="pressure"></div>
-    <div id="legend-pressure" class="legend"></div>
-  </section>
-
-  <!-- Soil moisture chart -->
-  <section>
-    <h2>Soil Moisture</h2>
-    <div id="soilmoisture"></div>
-    <div id="legend-soilmoisture" class="legend"></div>
-  </section>
-
-  <!-- UV Index chart -->
-  <section>
-    <h2>UV Index</h2>
+    <!-- UV Index Chart -->
+    <h2>☀️ UV Index</h2>
     <div id="uvchart"></div>
     <div id="legend-uv" class="legend"></div>
-  </section>
+  </main>
 
-  <!-- Correlation section -->
-  <section>
-    <h2>Correlation with Soil Moisture</h2>
-    <div id="correlation"></div>
-  </section>
-
-  <!-- Drying interval analysis -->
-  <section>
-    <h2>Drying Interval Analysis</h2>
-    <div id="drying-analysis"></div>
-  </section>
-
-  <!-- Load visualization logic -->
   <script src="dashboard.js"></script>
 </body>
 </html>
